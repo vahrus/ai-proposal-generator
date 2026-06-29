@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Proposal Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">AI Proposal Generator</span>
+        </div>
+        <p class="header-sub">Коммерческие предложения по AI-автоматизации за 30 секунд</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+
+      {% if error %}
+      <div class="alert alert-error">
+        <span class="alert-icon">⚠</span> {{ error }}
+      </div>
+      {% endif %}
+
+      <form action="/generate" method="POST" class="form-card">
+        <div class="form-section">
+          <h2 class="section-title">О клиенте</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="client">Название компании или клиента <span class="required">*</span></label>
+              <input type="text" id="client" name="client" placeholder="Например: ООО «Логистик Про»"
+                value="{{ form_data.client if form_data else '' }}" required />
+            </div>
+            <div class="form-group">
+              <label for="industry">Отрасль <span class="required">*</span></label>
+              <input type="text" id="industry" name="industry" placeholder="Например: логистика, e-commerce, медицина"
+                value="{{ form_data.industry if form_data else '' }}" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="problem">Боль / проблема клиента <span class="required">*</span></label>
+            <textarea id="problem" name="problem" rows="3"
+              placeholder="Например: менеджеры тратят 4 часа в день на ручную обработку заявок">{{ form_data.problem if form_data else '' }}</textarea>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="section-title">О решении</h2>
+          <div class="form-group">
+            <label for="solution">Предлагаемое AI-решение <span class="required">*</span></label>
+            <textarea id="solution" name="solution" rows="3"
+              placeholder="Например: AI-агент для автоматической классификации и маршрутизации заявок через Telegram">{{ form_data.solution if form_data else '' }}</textarea>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="price">Стоимость проекта <span class="required">*</span></label>
+              <input type="text" id="price" name="price" placeholder="Например: от 150 000 ₽"
+                value="{{ form_data.price if form_data else '' }}" required />
+            </div>
+            <div class="form-group">
+              <label for="timeline">Сроки реализации <span class="required">*</span></label>
+              <input type="text" id="timeline" name="timeline" placeholder="Например: 3-4 недели"
+                value="{{ form_data.timeline if form_data else '' }}" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="section-title">Настройки генерации</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="style">Стиль КП</label>
+              <select id="style" name="style">
+                <option value="business" {% if not form_data or form_data.style == 'business' %}selected{% endif %}>Деловой</option>
+                <option value="simple" {% if form_data and form_data.style == 'simple' %}selected{% endif %}>Простой</option>
+                <option value="expert" {% if form_data and form_data.style == 'expert' %}selected{% endif %}>Экспертный</option>
+                <option value="confident" {% if form_data and form_data.style == 'confident' %}selected{% endif %}>Уверенный</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="format">Формат файла</label>
+              <select id="format" name="format">
+                <option value="md">Markdown (.md)</option>
+                <option value="txt">Текст (.txt)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">
+            <span class="btn-icon">✦</span> Сгенерировать КП
+          </button>
+          <button type="reset" class="btn btn-secondary">Очистить</button>
+        </div>
+      </form>
+
+      <div class="info-cards">
+        <div class="info-card">
+          <div class="info-icon">🤖</div>
+          <h3>AI-генерация</h3>
+          <p>Используем GPT-4o-mini для создания персонализированного текста под вашего клиента</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">⚡</div>
+          <h3>30 секунд</h3>
+          <p>От заполнения формы до готового коммерческого предложения</p>
+        </div>
+        <div class="info-card">
+          <div class="info-icon">📄</div>
+          <h3>Готовый текст</h3>
+          <p>Скачайте в .md или .txt и отправьте клиенту или вставьте в шаблон</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>AI Proposal Generator — выпускной проект курса по Claude Code</p>
+    </div>
+  </footer>
+</body>
+</html>

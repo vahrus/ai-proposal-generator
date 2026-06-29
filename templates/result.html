@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>КП готово — AI Proposal Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">AI Proposal Generator</span>
+        </div>
+        <a href="/" class="btn btn-secondary btn-sm">← Новое КП</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+
+      {% if result.is_fallback %}
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>
+          Режим демо: API-ключ не найден.
+          {% if result.api_error %}Ошибка API: {{ result.api_error }}.{% endif %}
+          КП сгенерировано по шаблону.
+          Добавьте <code>OPENAI_API_KEY</code> в файл <code>.env</code> для AI-генерации.
+        </span>
+      </div>
+      {% else %}
+      <div class="alert alert-success">
+        <span class="alert-icon">✓</span> КП успешно сгенерировано с помощью GPT-4o-mini
+      </div>
+      {% endif %}
+
+      <div class="result-header">
+        <h1 class="result-title">{{ result.title }}</h1>
+        <div class="result-meta">
+          <span class="meta-badge">{{ result.input.client }}</span>
+          <span class="meta-badge">{{ result.input.industry }}</span>
+          <span class="meta-badge">{{ result.input.price }}</span>
+          <span class="meta-badge">{{ result.input.timeline }}</span>
+        </div>
+      </div>
+
+      <div class="sections-grid">
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">📊</span>
+            <h3>Ситуация клиента</h3>
+          </div>
+          <p>{{ result.situation }}</p>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">🔥</span>
+            <h3>Проблема</h3>
+          </div>
+          <p>{{ result.problem }}</p>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">🤖</span>
+            <h3>Предлагаемое решение</h3>
+          </div>
+          <p>{{ result.solution }}</p>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">🗺</span>
+            <h3>Этапы внедрения</h3>
+          </div>
+          <div class="markdown-content">{{ result.stages | replace('\n', '<br>') | safe }}</div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">🎯</span>
+            <h3>Ожидаемые выгоды</h3>
+          </div>
+          <div class="markdown-content">{{ result.benefits | replace('\n', '<br>') | safe }}</div>
+        </div>
+
+        <div class="section-card">
+          <div class="section-header">
+            <span class="section-icon">💰</span>
+            <h3>Стоимость и сроки</h3>
+          </div>
+          <div class="markdown-content">{{ result.price_timeline | replace('\n', '<br>') | safe }}</div>
+        </div>
+
+        <div class="section-card section-card--accent">
+          <div class="section-header">
+            <span class="section-icon">🚀</span>
+            <h3>Следующий шаг</h3>
+          </div>
+          <p>{{ result.next_step }}</p>
+        </div>
+
+      </div>
+
+      <div class="full-text-card">
+        <div class="full-text-header">
+          <div>
+            <span class="section-icon">📄</span>
+            <h2>Готовый текст КП</h2>
+          </div>
+          <div class="full-text-actions">
+            <button class="btn btn-secondary btn-sm" onclick="copyText()">
+              <span id="copy-label">📋 Скопировать</span>
+            </button>
+            <a href="/download/{{ result.filename }}" class="btn btn-primary btn-sm">
+              ⬇ Скачать .{{ result.filename.rsplit('.', 1)[1] }}
+            </a>
+          </div>
+        </div>
+        <pre id="full-text" class="full-text-content">{{ result.full_text }}</pre>
+      </div>
+
+      <div class="bottom-actions">
+        <a href="/" class="btn btn-primary">← Создать новое КП</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>AI Proposal Generator — выпускной проект курса по Claude Code</p>
+    </div>
+  </footer>
+
+  <script>
+    function copyText() {
+      const text = document.getElementById('full-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const label = document.getElementById('copy-label');
+        label.textContent = '✓ Скопировано!';
+        setTimeout(() => { label.textContent = '📋 Скопировать'; }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>
