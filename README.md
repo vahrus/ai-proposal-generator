@@ -153,6 +153,65 @@ ai-proposal-generator/
 
 ---
 
+## Деплой через Docker
+
+### Быстрый запуск
+
+```bash
+docker build -t ai-proposal-generator .
+docker run -d \
+  -p 5000:5000 \
+  -e OPENAI_API_KEY=sk-...your-key... \
+  -v $(pwd)/outputs:/app/outputs \
+  --name proposal-app \
+  ai-proposal-generator
+```
+
+Откройте в браузере: `http://localhost:5000`
+
+### Docker Compose
+
+Создайте `docker-compose.yml`:
+
+```yaml
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./outputs:/app/outputs
+    restart: unless-stopped
+```
+
+Запуск:
+
+```bash
+# Переменная берётся из .env автоматически
+docker compose up -d
+```
+
+### Деплой на VPS (Dokploy / любой Docker-хостинг)
+
+1. Залейте репозиторий на GitHub
+2. В Dokploy создайте новый проект → Source: GitHub repo
+3. В переменных окружения добавьте `OPENAI_API_KEY`
+4. Добавьте volume: `/app/outputs` → для сохранения экспортируемых файлов
+5. Настройте домен и SSL через Dokploy — Traefik подключится автоматически
+
+### Полезные команды
+
+```bash
+docker logs proposal-app          # просмотр логов
+docker exec -it proposal-app sh   # войти в контейнер
+docker compose down               # остановить
+docker compose up -d --build      # пересобрать и запустить
+```
+
+---
+
 ## Что можно улучшить в будущем
 
 - [ ] Поддержка Anthropic Claude (claude-sonnet-4-6) как альтернативы GPT
