@@ -7,47 +7,53 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
+
   <header class="header">
     <div class="container">
       <div class="header-inner">
-        <div class="logo">
+        <a href="/" class="logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-text">AI Proposal Generator</span>
-        </div>
+        </a>
         <a href="/" class="btn btn-secondary btn-sm">← Новое КП</a>
       </div>
     </div>
   </header>
 
-  <main class="main">
+  <main class="main" style="padding-top: 32px;">
     <div class="container">
 
       {% if result.is_fallback %}
       <div class="alert alert-info">
         <span class="alert-icon">ℹ</span>
         <span>
-          Режим демо: API-ключ не найден.
-          {% if result.api_error %}Ошибка API: {{ result.api_error }}.{% endif %}
-          КП сгенерировано по шаблону.
-          Добавьте <code>OPENAI_API_KEY</code> в файл <code>.env</code> для AI-генерации.
+          Демо-режим: API-ключ не найден.
+          {% if result.api_error %}Ошибка: {{ result.api_error }}.{% endif %}
+          КП сгенерировано по шаблону. Добавьте <code>OPENAI_API_KEY</code> в файл <code>.env</code>.
         </span>
       </div>
       {% else %}
       <div class="alert alert-success">
-        <span class="alert-icon">✓</span> КП успешно сгенерировано с помощью GPT-4o-mini
+        <span class="alert-icon">✓</span>
+        КП успешно сгенерировано с помощью GPT-4o-mini
       </div>
       {% endif %}
 
+      <!-- Header -->
       <div class="result-header">
         <h1 class="result-title">{{ result.title }}</h1>
         <div class="result-meta">
           <span class="meta-badge">{{ result.input.client }}</span>
           <span class="meta-badge">{{ result.input.industry }}</span>
+          {% if result.proposal_type_label %}
+          <span class="meta-badge type">{{ result.proposal_type_label }}</span>
+          {% endif %}
           <span class="meta-badge">{{ result.input.price }}</span>
           <span class="meta-badge">{{ result.input.timeline }}</span>
         </div>
       </div>
 
+      <!-- Sections -->
       <div class="sections-grid">
 
         <div class="section-card">
@@ -108,9 +114,10 @@
 
       </div>
 
+      <!-- Full text / document view -->
       <div class="full-text-card">
         <div class="full-text-header">
-          <div>
+          <div class="full-text-header-left">
             <span class="section-icon">📄</span>
             <h2>Готовый текст КП</h2>
           </div>
@@ -118,9 +125,18 @@
             <button class="btn btn-secondary btn-sm" onclick="copyText()">
               <span id="copy-label">📋 Скопировать</span>
             </button>
-            <a href="/download/{{ result.filename }}" class="btn btn-primary btn-sm">
-              ⬇ Скачать .{{ result.filename.rsplit('.', 1)[1] }}
-            </a>
+            {% if result.files.md %}
+            <a href="/download/{{ result.files.md }}" class="btn btn-secondary btn-sm">⬇ MD</a>
+            {% endif %}
+            {% if result.files.txt %}
+            <a href="/download/{{ result.files.txt }}" class="btn btn-secondary btn-sm">⬇ TXT</a>
+            {% endif %}
+            {% if result.files.pdf %}
+            <a href="/download/{{ result.files.pdf }}" class="btn btn-secondary btn-sm" title="Структурированные разделы КП">⬇ PDF (структура)</a>
+            {% endif %}
+            {% if result.files.pdf_full %}
+            <a href="/download/{{ result.files.pdf_full }}" class="btn btn-pdf btn-sm" title="Полный текст КП для отправки клиенту">⬇ PDF (текст КП)</a>
+            {% endif %}
           </div>
         </div>
         <pre id="full-text" class="full-text-content">{{ result.full_text }}</pre>

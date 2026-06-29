@@ -7,73 +7,106 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
+
   <header class="header">
     <div class="container">
       <div class="header-inner">
-        <div class="logo">
+        <a href="/" class="logo">
           <span class="logo-icon">⚡</span>
           <span class="logo-text">AI Proposal Generator</span>
-        </div>
-        <p class="header-sub">Коммерческие предложения по AI-автоматизации за 30 секунд</p>
+        </a>
       </div>
     </div>
   </header>
+
+  <div id="loading-overlay" class="loading-overlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Генерирую коммерческое предложение...</div>
+    <div class="loading-sub">Обычно занимает 10–20 секунд</div>
+  </div>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">⚡ AI-инструмент для фрилансеров и консультантов</div>
+      <h1 class="hero-title">AI Proposal Generator</h1>
+      <p class="hero-subtitle">Генератор коммерческих предложений<br>для AI-автоматизации бизнеса</p>
+      <p class="hero-desc">Опишите клиента и задачу — получите готовое КП за 30 секунд.<br>С проблемой, решением, этапами и выгодами.</p>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">30 сек</span><span class="stat-label">на генерацию</span></div>
+        <div class="stat"><span class="stat-num">8</span><span class="stat-label">разделов КП</span></div>
+        <div class="stat"><span class="stat-num">6</span><span class="stat-label">типов проектов</span></div>
+        <div class="stat"><span class="stat-num">PDF</span><span class="stat-label">экспорт</span></div>
+      </div>
+    </div>
+  </section>
 
   <main class="main">
     <div class="container">
 
       {% if error %}
-      <div class="alert alert-error">
-        <span class="alert-icon">⚠</span> {{ error }}
-      </div>
+      <div class="alert alert-error"><span class="alert-icon">⚠</span> {{ error }}</div>
       {% endif %}
 
-      <form action="/generate" method="POST" class="form-card">
+      <div class="templates-section">
+        <div class="templates-label">Быстрые шаблоны — заполнить автоматически</div>
+        <div class="templates-row">
+          <button class="tpl-btn" onclick="fillTemplate('ecommerce')">🛒 Интернет-магазин</button>
+          <button class="tpl-btn" onclick="fillTemplate('manufacturing')">🏭 Производство</button>
+          <button class="tpl-btn" onclick="fillTemplate('logistics')">🚚 Логистика</button>
+          <button class="tpl-btn" onclick="fillTemplate('education')">🎓 Образование</button>
+          <button class="tpl-btn" onclick="fillTemplate('service')">🏥 Сервисная компания</button>
+        </div>
+      </div>
+
+      <form id="proposal-form" action="/generate" method="POST" class="form-card" novalidate>
+
         <div class="form-section">
-          <h2 class="section-title">О клиенте</h2>
+          <div class="section-title">О клиенте</div>
           <div class="form-grid">
             <div class="form-group">
-              <label for="client">Название компании или клиента <span class="required">*</span></label>
-              <input type="text" id="client" name="client" placeholder="Например: ООО «Логистик Про»"
-                value="{{ form_data.client if form_data else '' }}" required />
+              <label for="client">Название компании <span class="required">*</span></label>
+              <input type="text" id="client" name="client" placeholder="Например: ООО «Логистик Про»" value="{{ form_data.client if form_data else '' }}" />
             </div>
             <div class="form-group">
               <label for="industry">Отрасль <span class="required">*</span></label>
-              <input type="text" id="industry" name="industry" placeholder="Например: логистика, e-commerce, медицина"
-                value="{{ form_data.industry if form_data else '' }}" required />
+              <input type="text" id="industry" name="industry" placeholder="Например: логистика, e-commerce, медицина" value="{{ form_data.industry if form_data else '' }}" />
             </div>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 16px;">
             <label for="problem">Боль / проблема клиента <span class="required">*</span></label>
-            <textarea id="problem" name="problem" rows="3"
-              placeholder="Например: менеджеры тратят 4 часа в день на ручную обработку заявок">{{ form_data.problem if form_data else '' }}</textarea>
+            <textarea id="problem" name="problem" rows="3" placeholder="Например: менеджеры тратят 4 часа в день на ручную обработку заявок">{{ form_data.problem if form_data else '' }}</textarea>
           </div>
         </div>
 
         <div class="form-section">
-          <h2 class="section-title">О решении</h2>
+          <div class="section-title">О решении</div>
           <div class="form-group">
             <label for="solution">Предлагаемое AI-решение <span class="required">*</span></label>
-            <textarea id="solution" name="solution" rows="3"
-              placeholder="Например: AI-агент для автоматической классификации и маршрутизации заявок через Telegram">{{ form_data.solution if form_data else '' }}</textarea>
+            <textarea id="solution" name="solution" rows="3" placeholder="Например: AI-агент для автоматической классификации и маршрутизации заявок через Telegram">{{ form_data.solution if form_data else '' }}</textarea>
           </div>
-          <div class="form-grid">
+          <div class="form-grid" style="margin-top: 16px;">
             <div class="form-group">
               <label for="price">Стоимость проекта <span class="required">*</span></label>
-              <input type="text" id="price" name="price" placeholder="Например: от 150 000 ₽"
-                value="{{ form_data.price if form_data else '' }}" required />
+              <input type="text" id="price" name="price" placeholder="Например: от 150 000 ₽" value="{{ form_data.price if form_data else '' }}" />
             </div>
             <div class="form-group">
               <label for="timeline">Сроки реализации <span class="required">*</span></label>
-              <input type="text" id="timeline" name="timeline" placeholder="Например: 3-4 недели"
-                value="{{ form_data.timeline if form_data else '' }}" required />
+              <input type="text" id="timeline" name="timeline" placeholder="Например: 3–4 недели" value="{{ form_data.timeline if form_data else '' }}" />
             </div>
           </div>
         </div>
 
         <div class="form-section">
-          <h2 class="section-title">Настройки генерации</h2>
+          <div class="section-title">Параметры генерации</div>
           <div class="form-grid">
+            <div class="form-group">
+              <label for="proposal_type">Тип коммерческого предложения</label>
+              <select id="proposal_type" name="proposal_type">
+                {% for key, label in proposal_types.items() %}
+                <option value="{{ key }}" {% if form_data and form_data.proposal_type == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
             <div class="form-group">
               <label for="style">Стиль КП</label>
               <select id="style" name="style">
@@ -83,40 +116,40 @@
                 <option value="confident" {% if form_data and form_data.style == 'confident' %}selected{% endif %}>Уверенный</option>
               </select>
             </div>
-            <div class="form-group">
-              <label for="format">Формат файла</label>
-              <select id="format" name="format">
-                <option value="md">Markdown (.md)</option>
-                <option value="txt">Текст (.txt)</option>
-              </select>
-            </div>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">
-            <span class="btn-icon">✦</span> Сгенерировать КП
-          </button>
-          <button type="reset" class="btn btn-secondary">Очистить</button>
+          <button type="submit" class="btn btn-primary"><span>✦</span> Сгенерировать КП</button>
+          <button type="reset" class="btn btn-secondary" onclick="clearErrors()">Очистить</button>
         </div>
       </form>
 
-      <div class="info-cards">
-        <div class="info-card">
-          <div class="info-icon">🤖</div>
-          <h3>AI-генерация</h3>
-          <p>Используем GPT-4o-mini для создания персонализированного текста под вашего клиента</p>
+      <div class="history-section">
+        <div class="history-title"><span>🕐</span> Последние генерации</div>
+        {% if history %}
+        <div class="history-list">
+          {% for item in history %}
+          <div class="history-item">
+            <div class="history-info">
+              <div class="history-client">{{ item.client or item.title }}</div>
+              <div class="history-meta">
+                <span class="history-date">{{ item.date_display }}</span>
+                {% if item.proposal_type_label %}<span class="history-type">{{ item.proposal_type_label }}</span>{% endif %}
+              </div>
+            </div>
+            <div class="history-links">
+              {% if item.files.md %}<a href="/download/{{ item.files.md }}" class="history-link">MD</a>{% endif %}
+              {% if item.files.txt %}<a href="/download/{{ item.files.txt }}" class="history-link">TXT</a>{% endif %}
+              {% if item.files.pdf %}<a href="/download/{{ item.files.pdf }}" class="history-link pdf" title="PDF со структурой разделов">PDF</a>{% endif %}
+              {% if item.files.pdf_full %}<a href="/download/{{ item.files.pdf_full }}" class="history-link pdf" title="PDF с полным текстом КП">PDF (КП)</a>{% endif %}
+            </div>
+          </div>
+          {% endfor %}
         </div>
-        <div class="info-card">
-          <div class="info-icon">⚡</div>
-          <h3>30 секунд</h3>
-          <p>От заполнения формы до готового коммерческого предложения</p>
-        </div>
-        <div class="info-card">
-          <div class="info-icon">📄</div>
-          <h3>Готовый текст</h3>
-          <p>Скачайте в .md или .txt и отправьте клиенту или вставьте в шаблон</p>
-        </div>
+        {% else %}
+        <div class="history-empty">Пока нет сохранённых коммерческих предложений</div>
+        {% endif %}
       </div>
 
     </div>
@@ -127,5 +160,75 @@
       <p>AI Proposal Generator — выпускной проект курса по Claude Code</p>
     </div>
   </footer>
+
+  <script>
+    const TEMPLATES = {
+      ecommerce: {
+        client: 'ООО «ТоргОнлайн»',
+        industry: 'интернет-торговля и e-commerce',
+        problem: 'Менеджеры тратят 6+ часов в день на обработку заказов и ответы на типовые вопросы покупателей. Теряется до 25% потенциальных клиентов из-за долгого ответа',
+        solution: 'AI-агент для автоматической обработки заказов, чат-бот для поддержки 24/7, интеграция с CRM и складской системой через n8n',
+        price: '250 000 ₽', timeline: '5 недель', style: 'confident', proposal_type: 'ai_automation'
+      },
+      manufacturing: {
+        client: 'ООО «ПромТех»',
+        industry: 'производство и машиностроение',
+        problem: 'Плановый отдел вручную собирает данные из 5 систем, планирование занимает 2 рабочих дня, высокий процент ошибок в нарядах на работу',
+        solution: 'AI-система оптимизации производственного планирования с автоматическим сбором данных из ERP, MES и CRM через n8n-интеграцию',
+        price: '380 000 ₽', timeline: '7 недель', style: 'expert', proposal_type: 'n8n'
+      },
+      logistics: {
+        client: 'ООО «Логистик Про»',
+        industry: 'логистика и грузоперевозки',
+        problem: 'Менеджеры вручную обрабатывают 200+ заявок в день, ошибки маршрутизации в 15% случаев, клиенты не получают уведомлений о статусе доставки',
+        solution: 'AI-агент для автоматической классификации и маршрутизации заявок, Telegram-бот для уведомлений клиентов о статусе доставки',
+        price: '180 000 ₽', timeline: '4 недели', style: 'business', proposal_type: 'telegram_bot'
+      },
+      education: {
+        client: 'Образовательный центр «Знание»',
+        industry: 'дополнительное образование и онлайн-курсы',
+        problem: 'Методисты тратят 4 часа в день на ответы на типовые вопросы студентов. Поиск по учебным материалам занимает много времени',
+        solution: 'RAG-ассистент на базе корпоративных документов и учебных материалов, чат-бот для студентов в Telegram с поиском по базе знаний',
+        price: '150 000 ₽', timeline: '3 недели', style: 'simple', proposal_type: 'rag'
+      },
+      service: {
+        client: 'Клиника «МедПлюс»',
+        industry: 'медицина и частные клиники',
+        problem: 'Администраторы тратят 5+ часов на запись пациентов и обработку звонков. Теряется 30% первичных обращений вне рабочего времени',
+        solution: 'AI-чат-бот для Telegram и MAX: запись на приём, напоминания, ответы на FAQ, эскалация сложных случаев оператору',
+        price: '200 000 ₽', timeline: '4 недели', style: 'confident', proposal_type: 'telegram_bot'
+      }
+    };
+
+    function fillTemplate(key) {
+      const t = TEMPLATES[key];
+      if (!t) return;
+      ['client','industry','problem','solution','price','timeline','style','proposal_type'].forEach(f => {
+        const el = document.getElementById(f);
+        if (el && t[f] !== undefined) el.value = t[f];
+      });
+      document.getElementById('proposal-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+    }
+
+    document.getElementById('proposal-form').addEventListener('submit', function(e) {
+      const required = ['client','industry','problem','solution','price','timeline'];
+      let valid = true;
+      required.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) { el.classList.add('field-error'); valid = false; }
+        else el.classList.remove('field-error');
+      });
+      if (!valid) {
+        e.preventDefault();
+        document.querySelector('.field-error').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      document.getElementById('loading-overlay').classList.add('active');
+    });
+  </script>
 </body>
 </html>
